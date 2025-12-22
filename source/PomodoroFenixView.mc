@@ -1,5 +1,7 @@
 import Toybox.Graphics;
 import Toybox.WatchUi;
+import Toybox.Application;
+import Toybox.Lang;
 
 class PomodoroFenixView extends WatchUi.View {
 
@@ -20,8 +22,79 @@ class PomodoroFenixView extends WatchUi.View {
 
     // Update the view
     function onUpdate(dc as Dc) as Void {
-        // Call the parent onUpdate function to redraw the layout
-        View.onUpdate(dc);
+        // Clear screen
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.clear();
+
+        var app = Application.getApp();
+        var timer = app.pomodoroTimer;
+
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        var centerX = width / 2;
+        var centerY = height / 2;
+
+        // Draw Progress Arc
+        var radius = (width < height ? width : height) / 2 - 5;
+        var penWidth = 10;
+        var totalDuration = (timer.currentPhase == :work) ? timer.workDuration : timer.breakDuration;
+        var progress = 0;
+        if (totalDuration > 0) {
+            progress = timer.timeRemaining.toFloat() / totalDuration.toFloat();
+        }
+        
+        // Draw background circle
+        dc.setPenWidth(penWidth);
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, 90); // Full circle
+
+        // Draw progress arc
+        var phaseColor = (timer.currentPhase == :work) ? Graphics.COLOR_GREEN : Graphics.COLOR_BLUE;
+        dc.setColor(phaseColor, Graphics.COLOR_TRANSPARENT);
+        
+        if (progress > 0) {
+            var angle = 360 * progress;
+            // Note: drawArc angles are in degrees. 90 is 12 o'clock. 0 is 3 o'clock.
+            // Clockwise: 90 -> 0 -> 270 -> 180.
+            // So 90 - angle.
+            
+            dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, 90 - angle);
+        }
+
+        // Draw Phase
+        var phaseText = (timer.currentPhase == :work) ? "WORK" : "BREAK";
+        
+        dc.setColor(phaseColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, centerY - 60, Graphics.FONT_MEDIUM, phaseText, Graphics.TEXT_JUSTIFY_CENTER);
+
+        // Draw Time
+        var hours = timer.timeRemaining / 3600;
+        var minutes = (timer.timeRemaining % 3600) / 60;
+        var seconds = timer.timeRemaining % 60;
+        var timeStr;
+        
+        if (hours > 0) {
+            timeStr = Lang.format("$1$:$2$:$3$", [hours.format("%d"), minutes.format("%02d"), seconds.format("%02d")]);
+        } else {
+            timeStr = Lang.format("$1$:$2$:$3$", [0, minutes.format("%02d"), seconds.format("%02d")]);
+        }
+        
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        // Use a smaller font to fit HH:MM:SS
+        dc.drawText(centerX, centerY, Graphics.FONT_NUMBER_MEDIUM, timeStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // Draw Cycles
+        var cyclesStr = "Cycle: " + (timer.completedCycles + 1) + "/" + timer.cycles;
+        if (timer.infiniteMode) {
+            cyclesStr = "Cycle: " + (timer.completedCycles + 1) + " (Inf)";
+        }
+        dc.drawText(centerX, centerY + 60, Graphics.FONT_SMALL, cyclesStr, Graphics.TEXT_JUSTIFY_CENTER);
+        
+        // Draw Status (Paused?)
+        if (!timer.isRunning) {
+             dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+             dc.drawText(centerX, centerY + 90, Graphics.FONT_XTINY, "PAUSED", Graphics.TEXT_JUSTIFY_CENTER);
+        }
     }
 
     // Called when this View is removed from the screen. Save the
