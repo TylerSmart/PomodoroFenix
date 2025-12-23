@@ -22,9 +22,11 @@ class PomodoroTimer {
     public var completedCycles = 0;
 
     private var _timer;
+    private var _notifyTimer;
 
     function initialize() {
         _timer = new Timer.Timer();
+        _notifyTimer = new Timer.Timer();
     }
 
     function start() {
@@ -32,6 +34,18 @@ class PomodoroTimer {
             isRunning = true;
             _timer.start(method(:onTimerTick), 1000, true);
             WatchUi.requestUpdate();
+
+            if (vibration) {
+                if (Attention has :vibrate) {
+                    var vibeData = [new Attention.VibeProfile(100, 500)];
+                    Attention.vibrate(vibeData);
+                }
+            }
+            if (sound) {
+                if (Attention has :playTone) {
+                    Attention.playTone(Attention.TONE_START);
+                }
+            }
         }
     }
 
@@ -40,6 +54,18 @@ class PomodoroTimer {
             isRunning = false;
             _timer.stop();
             WatchUi.requestUpdate();
+
+            if (vibration) {
+                if (Attention has :vibrate) {
+                    var vibeData = [new Attention.VibeProfile(100, 1500)];
+                    Attention.vibrate(vibeData);
+                }
+            }
+            if (sound) {
+                if (Attention has :playTone) {
+                    Attention.playTone(Attention.TONE_STOP);
+                }
+            }
         }
     }
 
@@ -144,32 +170,36 @@ class PomodoroTimer {
     function notify(nextIsWork) {
         if (vibration) {
             if (Attention has :vibrate) {
-                var vibeData = [new Attention.VibeProfile(50, 1000)];
+                var vibeData;
+                if (nextIsWork) {
+                    // Short vibration for work start
+                    vibeData = [new Attention.VibeProfile(50, 500)];
+                } else {
+                    // Long vibration for break start
+                    vibeData = [new Attention.VibeProfile(50, 1500)];
+                }
                 Attention.vibrate(vibeData);
             }
         }
         if (sound) {
             if (Attention has :playTone) {
                 if (nextIsWork) {
-                    // Double beep for work starting
-                    Attention.playTone(Attention.TONE_LOUD_BEEP);
-                    // Note: Playing two tones in sequence might require a timer or just one long one. 
-                    // Simple implementation: Just one tone for now, or maybe different tones.
-                    // Let's try to play one, wait, play another? Can't block.
-                    // We'll just play a distinct tone if possible, or just one beep.
-                    // Requirement says "double for work section starting".
-                    // We can use a timer to play the second one, but that's complex.
-                    // Let's just play TONE_START for work and TONE_STOP for break if available, or just TONE_LOUD_BEEP.
-                    // For "double", I'll just play one for now to avoid blocking issues, or maybe TONE_SUCCESS vs TONE_LOUD_BEEP.
-                    // Actually, let's try to be compliant.
-                    // I can schedule a one-shot timer for the second beep?
-                    // Let's keep it simple first.
-                    Attention.playTone(Attention.TONE_START); 
+                    // Single chime for work start
+                    Attention.playTone(Attention.TONE_LAP);
                 } else {
-                    // Once for break starting
-                    Attention.playTone(Attention.TONE_STOP);
+                    // Double chime for break start
+                    Attention.playTone(Attention.TONE_LAP);
+                    if (_notifyTimer != null) {
+                        _notifyTimer.start(method(:playSecondChime), 500, false);
+                    }
                 }
             }
+        }
+    }
+
+    function playSecondChime() {
+        if (sound && Attention has :playTone) {
+            Attention.playTone(Attention.TONE_LAP);
         }
     }
     
