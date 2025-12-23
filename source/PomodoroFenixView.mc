@@ -2,6 +2,9 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Application;
 import Toybox.Lang;
+import Toybox.System;
+import Toybox.Time;
+import Toybox.Time.Gregorian;
 
 class PomodoroFenixView extends WatchUi.View {
 
@@ -66,6 +69,33 @@ class PomodoroFenixView extends WatchUi.View {
         
         dc.setColor(phaseColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, centerY - 60, Graphics.FONT_MEDIUM, phaseText, Graphics.TEXT_JUSTIFY_CENTER);
+
+        // Draw Current Time if enabled
+        if (timer.showTime) {
+            var clockTime = System.getClockTime();
+            var is24Hour = System.getDeviceSettings().is24Hour;
+            var timeString = "";
+            
+            if (is24Hour) {
+                timeString = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+            } else {
+                var hour = clockTime.hour;
+                var ampm = "AM";
+                if (hour >= 12) {
+                    ampm = "PM";
+                    if (hour > 12) {
+                        hour -= 12;
+                    }
+                }
+                if (hour == 0) {
+                    hour = 12;
+                }
+                timeString = Lang.format("$1$:$2$ $3$", [hour, clockTime.min.format("%02d"), ampm]);
+            }
+            
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(centerX, centerY - 90, Graphics.FONT_XTINY, timeString, Graphics.TEXT_JUSTIFY_CENTER);
+        }
 
         // Draw Time
         var hours = timer.timeRemaining / 3600;

@@ -19,6 +19,7 @@ class PomodoroFenixDelegate extends WatchUi.BehaviorDelegate {
             menu.addItem(new WatchUi.MenuItem("Cycles", app.pomodoroTimer.cycles + "", :cycles, null));
             menu.addItem(new WatchUi.ToggleMenuItem("Vibration", null, :vibration, app.pomodoroTimer.vibration, null));
             menu.addItem(new WatchUi.ToggleMenuItem("Sound", null, :sound, app.pomodoroTimer.sound, null));
+            menu.addItem(new WatchUi.ToggleMenuItem("Show Time", null, :showTime, app.pomodoroTimer.showTime, null));
 
             WatchUi.pushView(menu, new PomodoroFenixMenuDelegate(), WatchUi.SLIDE_UP);
             return true;

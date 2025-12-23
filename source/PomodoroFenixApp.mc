@@ -26,6 +26,8 @@ class PomodoroFenixApp extends Application.AppBase {
         if (val != null) { timer.vibration = val; }
         val = Application.Storage.getValue("sound");
         if (val != null) { timer.sound = val; }
+        val = Application.Storage.getValue("showTime");
+        if (val != null) { timer.showTime = val; }
         
         // Initialize timeRemaining based on loaded settings if starting fresh
         if (!timer.isRunning && timer.currentPhase == :work) {
@@ -42,6 +44,7 @@ class PomodoroFenixApp extends Application.AppBase {
         Application.Storage.setValue("infiniteMode", timer.infiniteMode);
         Application.Storage.setValue("vibration", timer.vibration);
         Application.Storage.setValue("sound", timer.sound);
+        Application.Storage.setValue("showTime", timer.showTime);
     }
 
     // Return the initial view of your application here

@@ -35,6 +35,8 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
             timer.vibration = (item as ToggleMenuItem).isEnabled();
         } else if (id == :sound) {
             timer.sound = (item as ToggleMenuItem).isEnabled();
+        } else if (id == :showTime) {
+            timer.showTime = (item as ToggleMenuItem).isEnabled();
         } else if (id == :workTime) {
              var initialValue = timer.workDuration;
              var h = initialValue / 3600;

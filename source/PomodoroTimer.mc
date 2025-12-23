@@ -12,6 +12,7 @@ class PomodoroTimer {
     public var infiniteMode = false;
     public var vibration = true;
     public var sound = true;
+    public var showTime = true;
 
     // State
     public var isRunning = false;
