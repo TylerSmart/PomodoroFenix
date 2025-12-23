@@ -7,7 +7,8 @@ import Toybox.WatchUi;
 class PomodoroTimer {
     // Settings
     public var workDuration = 25 * 60;
-    public var breakDuration = 5 * 60;
+    public var shortBreakDuration = 5 * 60;
+    public var longBreakDuration = 15 * 60;
     public var cycles = 4;
     public var infiniteMode = false;
     public var vibration = true;
@@ -16,7 +17,7 @@ class PomodoroTimer {
 
     // State
     public var isRunning = false;
-    public var currentPhase = :work; // :work or :break
+    public var currentPhase = :work; // :work, :shortBreak, :longBreak
     public var timeRemaining = 25 * 60;
     public var completedCycles = 0;
 
@@ -55,8 +56,10 @@ class PomodoroTimer {
         stop();
         if (currentPhase == :work) {
             timeRemaining = workDuration;
-        } else {
-            timeRemaining = breakDuration;
+        } else if (currentPhase == :shortBreak) {
+            timeRemaining = shortBreakDuration;
+        } else if (currentPhase == :longBreak) {
+            timeRemaining = longBreakDuration;
         }
         if (wasRunning) {
             start();
@@ -80,7 +83,7 @@ class PomodoroTimer {
         } else {
             // Section complete
             // Determine next phase to decide on notification sound
-            var nextIsWork = (currentPhase == :break);
+            var nextIsWork = (currentPhase == :shortBreak || currentPhase == :longBreak);
             notify(nextIsWork);
             
             switchPhase();
@@ -95,20 +98,46 @@ class PomodoroTimer {
 
     function switchPhase() {
         if (currentPhase == :work) {
-            currentPhase = :break;
-            timeRemaining = breakDuration;
+            // Work finished. Check if we should take a long break.
+            // If we just finished the last cycle (e.g. 4th work session), go to long break.
+            // completedCycles starts at 0. So if cycles=4, we want to go to long break after work #4.
+            // At this point completedCycles is 3 (0, 1, 2 done, just finished 3rd index which is 4th item).
+            // Wait, let's trace:
+            // Start: cycles=0. Work.
+            // Work finishes. switchPhase.
+            // If completedCycles + 1 >= cycles (0+1 >= 4? No).
+            // Go to short break.
+            // Short break finishes. switchPhase. completedCycles becomes 1. Back to Work.
+            // ...
+            // Work #4 finishes. completedCycles is 3.
+            // If completedCycles + 1 >= cycles (3+1 >= 4? Yes).
+            // Go to long break.
+            
+            if (completedCycles + 1 >= cycles) {
+                currentPhase = :longBreak;
+                timeRemaining = longBreakDuration;
+            } else {
+                currentPhase = :shortBreak;
+                timeRemaining = shortBreakDuration;
+            }
         } else {
+            // Break finished (Short or Long).
+            if (currentPhase == :longBreak) {
+                completedCycles = 0; // Reset cycle count
+                if (!infiniteMode) {
+                    stop();
+                    currentPhase = :work;
+                    timeRemaining = workDuration;
+                    return; // Don't start work if stopped
+                }
+            } else {
+                // Short break finished
+                completedCycles++;
+            }
+            
+            // Back to work
             currentPhase = :work;
             timeRemaining = workDuration;
-            completedCycles++;
-            
-            if (!infiniteMode && completedCycles >= cycles) {
-                stop();
-                completedCycles = 0;
-                currentPhase = :work;
-                timeRemaining = workDuration;
-                return;
-            }
         }
     }
 
@@ -152,9 +181,16 @@ class PomodoroTimer {
     }
 
     function setBreakDuration(seconds) {
-        breakDuration = seconds;
-        if (!isRunning && currentPhase == :break) {
-            timeRemaining = breakDuration;
+        shortBreakDuration = seconds;
+        if (!isRunning && currentPhase == :shortBreak) {
+            timeRemaining = shortBreakDuration;
+        }
+    }
+
+    function setLongBreakDuration(seconds) {
+        longBreakDuration = seconds;
+        if (!isRunning && currentPhase == :longBreak) {
+            timeRemaining = longBreakDuration;
         }
     }
 }

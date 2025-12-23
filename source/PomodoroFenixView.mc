@@ -40,7 +40,13 @@ class PomodoroFenixView extends WatchUi.View {
         // Draw Progress Arc
         var radius = (width < height ? width : height) / 2 - 5;
         var penWidth = 10;
-        var totalDuration = (timer.currentPhase == :work) ? timer.workDuration : timer.breakDuration;
+        var totalDuration = timer.workDuration;
+        if (timer.currentPhase == :shortBreak) {
+            totalDuration = timer.shortBreakDuration;
+        } else if (timer.currentPhase == :longBreak) {
+            totalDuration = timer.longBreakDuration;
+        }
+        
         var progress = 0;
         if (totalDuration > 0) {
             progress = timer.timeRemaining.toFloat() / totalDuration.toFloat();
@@ -65,7 +71,12 @@ class PomodoroFenixView extends WatchUi.View {
         }
 
         // Draw Phase
-        var phaseText = (timer.currentPhase == :work) ? "WORK" : "BREAK";
+        var phaseText = "WORK";
+        if (timer.currentPhase == :shortBreak) {
+            phaseText = "SHORT BREAK";
+        } else if (timer.currentPhase == :longBreak) {
+            phaseText = "LONG BREAK";
+        }
         
         dc.setColor(phaseColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, centerY - 60, Graphics.FONT_MEDIUM, phaseText, Graphics.TEXT_JUSTIFY_CENTER);
@@ -114,10 +125,7 @@ class PomodoroFenixView extends WatchUi.View {
         dc.drawText(centerX, centerY, Graphics.FONT_NUMBER_MEDIUM, timeStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Draw Cycles
-        var cyclesStr = "Cycle: " + (timer.completedCycles + 1) + "/" + timer.cycles;
-        if (timer.infiniteMode) {
-            cyclesStr = "Cycle: " + (timer.completedCycles + 1) + " (Inf)";
-        }
+        var cyclesStr = (timer.completedCycles + 1) + "/" + timer.cycles;
         dc.drawText(centerX, centerY + 60, Graphics.FONT_SMALL, cyclesStr, Graphics.TEXT_JUSTIFY_CENTER);
         
         // Draw Status (Paused?)

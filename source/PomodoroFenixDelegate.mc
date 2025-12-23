@@ -15,7 +15,8 @@ class PomodoroFenixDelegate extends WatchUi.BehaviorDelegate {
             
             menu.addItem(new WatchUi.ToggleMenuItem("Infinite Mode", null, :infiniteMode, app.pomodoroTimer.infiniteMode, null));
             menu.addItem(new WatchUi.MenuItem("Work Time", formatDuration(app.pomodoroTimer.workDuration), :workTime, null));
-            menu.addItem(new WatchUi.MenuItem("Break Time", formatDuration(app.pomodoroTimer.breakDuration), :breakTime, null));
+            menu.addItem(new WatchUi.MenuItem("Short Break", formatDuration(app.pomodoroTimer.shortBreakDuration), :shortBreakTime, null));
+            menu.addItem(new WatchUi.MenuItem("Long Break", formatDuration(app.pomodoroTimer.longBreakDuration), :longBreakTime, null));
             menu.addItem(new WatchUi.MenuItem("Cycles", app.pomodoroTimer.cycles + "", :cycles, null));
             menu.addItem(new WatchUi.ToggleMenuItem("Vibration", null, :vibration, app.pomodoroTimer.vibration, null));
             menu.addItem(new WatchUi.ToggleMenuItem("Sound", null, :sound, app.pomodoroTimer.sound, null));

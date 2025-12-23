@@ -51,8 +51,8 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
                  :pattern=>factories,
                  :defaults=>defaults
              }), new TimePickerDelegate(method(:onWorkTimePicked), item), WatchUi.SLIDE_IMMEDIATE);
-        } else if (id == :breakTime) {
-             var initialValue = timer.breakDuration;
+        } else if (id == :shortBreakTime) {
+             var initialValue = timer.shortBreakDuration;
              var h = initialValue / 3600;
              var m = (initialValue % 3600) / 60;
              var s = initialValue % 60;
@@ -61,10 +61,24 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
              var defaults = [h, m, s];
 
              WatchUi.pushView(new BlackPicker({
-                 :title=>new WatchUi.Text({:text=>"Break Time", :locX=>WatchUi.LAYOUT_HALIGN_CENTER, :locY=>WatchUi.LAYOUT_VALIGN_BOTTOM, :color=>Graphics.COLOR_WHITE}),
+                 :title=>new WatchUi.Text({:text=>"Short Break", :locX=>WatchUi.LAYOUT_HALIGN_CENTER, :locY=>WatchUi.LAYOUT_VALIGN_BOTTOM, :color=>Graphics.COLOR_WHITE}),
                  :pattern=>factories,
                  :defaults=>defaults
-             }), new TimePickerDelegate(method(:onBreakTimePicked), item), WatchUi.SLIDE_IMMEDIATE);
+             }), new TimePickerDelegate(method(:onShortBreakTimePicked), item), WatchUi.SLIDE_IMMEDIATE);
+        } else if (id == :longBreakTime) {
+             var initialValue = timer.longBreakDuration;
+             var h = initialValue / 3600;
+             var m = (initialValue % 3600) / 60;
+             var s = initialValue % 60;
+             
+             var factories = [new TimeFactory(0, 23, 1, :hours), new TimeFactory(0, 59, 1, :minutes), new TimeFactory(0, 59, 1, :seconds)];
+             var defaults = [h, m, s];
+
+             WatchUi.pushView(new BlackPicker({
+                 :title=>new WatchUi.Text({:text=>"Long Break", :locX=>WatchUi.LAYOUT_HALIGN_CENTER, :locY=>WatchUi.LAYOUT_VALIGN_BOTTOM, :color=>Graphics.COLOR_WHITE}),
+                 :pattern=>factories,
+                 :defaults=>defaults
+             }), new TimePickerDelegate(method(:onLongBreakTimePicked), item), WatchUi.SLIDE_IMMEDIATE);
         } else if (id == :cycles) {
              var initialValue = timer.cycles;
              var factory = new NumberFactory(1, 20, 1);
@@ -84,10 +98,17 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
         item.setSubLabel(formatDuration(seconds));
     }
 
-    function onBreakTimePicked(values, item) {
+    function onShortBreakTimePicked(values, item) {
         var app = Application.getApp();
         var seconds = (values[0] as Number) * 3600 + (values[1] as Number) * 60 + (values[2] as Number);
         app.pomodoroTimer.setBreakDuration(seconds);
+        item.setSubLabel(formatDuration(seconds));
+    }
+
+    function onLongBreakTimePicked(values, item) {
+        var app = Application.getApp();
+        var seconds = (values[0] as Number) * 3600 + (values[1] as Number) * 60 + (values[2] as Number);
+        app.pomodoroTimer.setLongBreakDuration(seconds);
         item.setSubLabel(formatDuration(seconds));
     }
 

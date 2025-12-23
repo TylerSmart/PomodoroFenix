@@ -16,8 +16,19 @@ class PomodoroFenixApp extends Application.AppBase {
         var val;
         val = Application.Storage.getValue("workDuration");
         if (val != null) { timer.workDuration = val; }
-        val = Application.Storage.getValue("breakDuration");
-        if (val != null) { timer.breakDuration = val; }
+        
+        val = Application.Storage.getValue("shortBreakDuration");
+        if (val != null) { 
+            timer.shortBreakDuration = val; 
+        } else {
+            // Fallback for migration
+            val = Application.Storage.getValue("breakDuration");
+            if (val != null) { timer.shortBreakDuration = val; }
+        }
+
+        val = Application.Storage.getValue("longBreakDuration");
+        if (val != null) { timer.longBreakDuration = val; }
+
         val = Application.Storage.getValue("cycles");
         if (val != null) { timer.cycles = val; }
         val = Application.Storage.getValue("infiniteMode");
@@ -39,7 +50,8 @@ class PomodoroFenixApp extends Application.AppBase {
     function onStop(state as Dictionary?) as Void {
         var timer = pomodoroTimer;
         Application.Storage.setValue("workDuration", timer.workDuration);
-        Application.Storage.setValue("breakDuration", timer.breakDuration);
+        Application.Storage.setValue("shortBreakDuration", timer.shortBreakDuration);
+        Application.Storage.setValue("longBreakDuration", timer.longBreakDuration);
         Application.Storage.setValue("cycles", timer.cycles);
         Application.Storage.setValue("infiniteMode", timer.infiniteMode);
         Application.Storage.setValue("vibration", timer.vibration);
