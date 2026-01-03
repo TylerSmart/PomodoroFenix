@@ -1,0 +1,10 @@
+<properties>
+    <property id="workDuration" type="number">1500</property>
+    <property id="shortBreakDuration" type="number">300</property>
+    <property id="longBreakDuration" type="number">900</property>
+    <property id="cycles" type="number">4</property>
+    <property id="infiniteMode" type="boolean">false</property>
+    <property id="vibration" type="boolean">true</property>
+    <property id="sound" type="boolean">true</property>
+    <property id="showTime" type="boolean">true</property>
+</properties>

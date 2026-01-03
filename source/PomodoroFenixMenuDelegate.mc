@@ -30,13 +30,21 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
         var timer = app.pomodoroTimer;
 
         if (id == :infiniteMode) {
-            timer.infiniteMode = (item as ToggleMenuItem).isEnabled();
+            var val = (item as ToggleMenuItem).isEnabled();
+            timer.infiniteMode = val;
+            try { Application.Properties.setValue("infiniteMode", val); } catch(e) {}
         } else if (id == :vibration) {
-            timer.vibration = (item as ToggleMenuItem).isEnabled();
+            var val = (item as ToggleMenuItem).isEnabled();
+            timer.vibration = val;
+            try { Application.Properties.setValue("vibration", val); } catch(e) {}
         } else if (id == :sound) {
-            timer.sound = (item as ToggleMenuItem).isEnabled();
+            var val = (item as ToggleMenuItem).isEnabled();
+            timer.sound = val;
+            try { Application.Properties.setValue("sound", val); } catch(e) {}
         } else if (id == :showTime) {
-            timer.showTime = (item as ToggleMenuItem).isEnabled();
+            var val = (item as ToggleMenuItem).isEnabled();
+            timer.showTime = val;
+            try { Application.Properties.setValue("showTime", val); } catch(e) {}
         } else if (id == :workTime) {
              var initialValue = timer.workDuration;
              var h = initialValue / 3600;
@@ -93,23 +101,29 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function onWorkTimePicked(values, item) {
         var app = Application.getApp();
-        var seconds = (values[0] as Number) * 3600 + (values[1] as Number) * 60 + (values[2] as Number);
+        var vals = values as Array;
+        var seconds = (vals[0] as Number) * 3600 + (vals[1] as Number) * 60 + (vals[2] as Number);
         app.pomodoroTimer.setWorkDuration(seconds);
         item.setSubLabel(formatDuration(seconds));
+        try { Application.Properties.setValue("workDuration", seconds); } catch(e) {}
     }
 
     function onShortBreakTimePicked(values, item) {
         var app = Application.getApp();
-        var seconds = (values[0] as Number) * 3600 + (values[1] as Number) * 60 + (values[2] as Number);
+        var vals = values as Array;
+        var seconds = (vals[0] as Number) * 3600 + (vals[1] as Number) * 60 + (vals[2] as Number);
         app.pomodoroTimer.setBreakDuration(seconds);
         item.setSubLabel(formatDuration(seconds));
+        try { Application.Properties.setValue("shortBreakDuration", seconds); } catch(e) {}
     }
 
     function onLongBreakTimePicked(values, item) {
         var app = Application.getApp();
-        var seconds = (values[0] as Number) * 3600 + (values[1] as Number) * 60 + (values[2] as Number);
+        var vals = values as Array;
+        var seconds = (vals[0] as Number) * 3600 + (vals[1] as Number) * 60 + (vals[2] as Number);
         app.pomodoroTimer.setLongBreakDuration(seconds);
         item.setSubLabel(formatDuration(seconds));
+        try { Application.Properties.setValue("longBreakDuration", seconds); } catch(e) {}
     }
 
     function formatDuration(seconds) {
@@ -127,6 +141,7 @@ class PomodoroFenixMenuDelegate extends WatchUi.Menu2InputDelegate {
         var app = Application.getApp();
         app.pomodoroTimer.cycles = value;
         item.setSubLabel(value + "");
+        try { Application.Properties.setValue("cycles", value); } catch(e) {}
     }
 
 }

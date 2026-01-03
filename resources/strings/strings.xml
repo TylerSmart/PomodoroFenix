@@ -1,8 +1,23 @@
-<strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+<strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
     <string id="AppName">PomodoroFenix</string>
 
     <string id="prompt">Click the menu button</string>
 
     <string id="menu_label_1">Item 1</string>
-    <string id="menu_label_2">Item 2</string>
+    <string
+        id="menu_label_2">Item 2</string>
+
+    <!-- Settings Strings -->
+    <string id="WorkDurationTitle">Work Duration (seconds)</string>
+    <string
+        id="ShortBreakDurationTitle">Short Break (seconds)</string>
+    <string id="LongBreakDurationTitle">Long Break (seconds)</string>
+    <string
+        id="CyclesTitle">Cycles</string>
+    <string id="InfiniteModeTitle">Infinite Mode</string>
+    <string
+        id="VibrationTitle">Vibration</string>
+    <string id="SoundTitle">Sound</string>
+    <string id="ShowTimeTitle">Show Time</string>
 </strings>

@@ -1,0 +1,26 @@
+<settings>
+    <setting propertyKey="@Properties.workDuration" title="@Strings.WorkDurationTitle">
+        <settingConfig type="numeric" />
+    </setting>
+    <setting propertyKey="@Properties.shortBreakDuration" title="@Strings.ShortBreakDurationTitle">
+        <settingConfig type="numeric" />
+    </setting>
+    <setting propertyKey="@Properties.longBreakDuration" title="@Strings.LongBreakDurationTitle">
+        <settingConfig type="numeric" />
+    </setting>
+    <setting propertyKey="@Properties.cycles" title="@Strings.CyclesTitle">
+        <settingConfig type="numeric" />
+    </setting>
+    <setting propertyKey="@Properties.infiniteMode" title="@Strings.InfiniteModeTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.vibration" title="@Strings.VibrationTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.sound" title="@Strings.SoundTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.showTime" title="@Strings.ShowTimeTitle">
+        <settingConfig type="boolean" />
+    </setting>
+</settings>
