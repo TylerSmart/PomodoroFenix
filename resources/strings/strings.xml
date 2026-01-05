@@ -9,7 +9,7 @@
         id="menu_label_2">Item 2</string>
 
     <!-- Settings Strings -->
-    <string id="WorkDurationTitle">Work Duration (seconds)</string>
+    <string id="FocusDurationTitle">Focus Duration (seconds)</string>
     <string
         id="ShortBreakDurationTitle">Short Break (seconds)</string>
     <string id="LongBreakDurationTitle">Long Break (seconds)</string>

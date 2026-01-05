@@ -13,74 +13,29 @@ class PomodoroFenixApp extends Application.AppBase {
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
-        loadProperties();
-        
-        var timer = pomodoroTimer;
-        // Initialize timeRemaining based on loaded settings if starting fresh
-        if (!timer.isRunning && timer.currentPhase == :work) {
-            timer.timeRemaining = timer.workDuration;
-        }
+        // No longer loading properties here as we use TimerStorage
     }
 
     function onSettingsChanged() {
-        loadProperties();
+        // No longer needed as phone settings are removed
         WatchUi.requestUpdate();
     }
-
-    function loadProperties() {
-        var timer = pomodoroTimer;
-        var val;
-        
-        try {
-            val = Application.Properties.getValue("workDuration");
-            if (val != null) { timer.workDuration = val; }
-            
-            val = Application.Properties.getValue("shortBreakDuration");
-            if (val != null) { timer.shortBreakDuration = val; }
-
-            val = Application.Properties.getValue("longBreakDuration");
-            if (val != null) { timer.longBreakDuration = val; }
-
-            val = Application.Properties.getValue("cycles");
-            if (val != null) { timer.cycles = val; }
-            
-            val = Application.Properties.getValue("infiniteMode");
-            if (val != null) { timer.infiniteMode = val; }
-            
-            val = Application.Properties.getValue("vibration");
-            if (val != null) { timer.vibration = val; }
-            
-            val = Application.Properties.getValue("sound");
-            if (val != null) { timer.sound = val; }
-            
-            val = Application.Properties.getValue("showTime");
-            if (val != null) { timer.showTime = val; }
-        } catch (e) {
-            // Fallback or handle error if Properties not available
-            System.println("Error loading properties: " + e.getErrorMessage());
-        }
+    
+    function formatDuration(seconds) {
+        var h = seconds / 3600;
+        var m = (seconds % 3600) / 60;
+        var s = seconds % 60;
+        return Lang.format("$1$:$2$:$3$", [h, m.format("%02d"), s.format("%02d")]);
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
-        var timer = pomodoroTimer;
-        try {
-            Application.Properties.setValue("workDuration", timer.workDuration);
-            Application.Properties.setValue("shortBreakDuration", timer.shortBreakDuration);
-            Application.Properties.setValue("longBreakDuration", timer.longBreakDuration);
-            Application.Properties.setValue("cycles", timer.cycles);
-            Application.Properties.setValue("infiniteMode", timer.infiniteMode);
-            Application.Properties.setValue("vibration", timer.vibration);
-            Application.Properties.setValue("sound", timer.sound);
-            Application.Properties.setValue("showTime", timer.showTime);
-        } catch (e) {
-            System.println("Error saving properties: " + e.getErrorMessage());
-        }
+        // No longer saving properties here
     }
 
     // Return the initial view of your application here
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        return [ new PomodoroFenixView(), new PomodoroFenixDelegate() ];
+        return [ new TimerListMenu(), new TimerListMenuDelegate() ];
     }
 
 }

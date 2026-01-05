@@ -9,36 +9,39 @@ class PomodoroFenixDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onMenu() as Boolean {
+        return true;
+    }
+    
+    function onSelect() as Boolean {
         var app = Application.getApp();
-        if (!app.pomodoroTimer.isRunning) {
-            var menu = new WatchUi.Menu2({:title=>"Settings"});
-            
-            menu.addItem(new WatchUi.ToggleMenuItem("Infinite Mode", null, :infiniteMode, app.pomodoroTimer.infiniteMode, null));
-            menu.addItem(new WatchUi.MenuItem("Work Time", formatDuration(app.pomodoroTimer.workDuration), :workTime, null));
-            menu.addItem(new WatchUi.MenuItem("Short Break", formatDuration(app.pomodoroTimer.shortBreakDuration), :shortBreakTime, null));
-            menu.addItem(new WatchUi.MenuItem("Long Break", formatDuration(app.pomodoroTimer.longBreakDuration), :longBreakTime, null));
-            menu.addItem(new WatchUi.MenuItem("Cycles", app.pomodoroTimer.cycles + "", :cycles, null));
-            menu.addItem(new WatchUi.ToggleMenuItem("Vibration", null, :vibration, app.pomodoroTimer.vibration, null));
-            menu.addItem(new WatchUi.ToggleMenuItem("Sound", null, :sound, app.pomodoroTimer.sound, null));
-            menu.addItem(new WatchUi.ToggleMenuItem("Show Time", null, :showTime, app.pomodoroTimer.showTime, null));
+        app.pomodoroTimer.toggle();
+        return true;
+    }
 
-            WatchUi.pushView(menu, new PomodoroFenixMenuDelegate(), WatchUi.SLIDE_UP);
+    function onBack() as Boolean {
+        var app = Application.getApp();
+        var timer = app.pomodoroTimer;
+        
+        if (timer.isRunning) {
+            // Confirm reset
+            var view = new SimpleConfirmationView("Reset Timer?");
+            var delegate = new SimpleConfirmationDelegate(method(:onResetConfirm));
+            WatchUi.pushView(view, delegate, WatchUi.SLIDE_LEFT);
+            return true;
+        } else {
+            WatchUi.popView(WatchUi.SLIDE_RIGHT);
             return true;
         }
-        return false;
     }
-
-    function formatDuration(seconds) {
-        var h = seconds / 3600;
-        var m = (seconds % 3600) / 60;
-        var s = seconds % 60;
-        if (h > 0) {
-            return Lang.format("$1$:$2$:$3$", [h, m.format("%02d"), s.format("%02d")]);
-        } else {
-            return Lang.format("$1$:$2$", [m, s.format("%02d")]);
+    
+    function onResetConfirm(confirmed) {
+        if (confirmed) {
+            var app = Application.getApp();
+            app.pomodoroTimer.reset();
         }
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);
     }
-
+    
     function onKey(keyEvent) {
         var key = keyEvent.getKey();
         var app = Application.getApp();
@@ -55,5 +58,19 @@ class PomodoroFenixDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         return false;
+    }
+}
+
+class TimerResetConfirmationDelegate extends WatchUi.ConfirmationDelegate {
+    function initialize() {
+        ConfirmationDelegate.initialize();
+    }
+    
+    function onResponse(response) {
+        if (response == WatchUi.CONFIRM_YES) {
+            var app = Application.getApp();
+            app.pomodoroTimer.reset();
+        }
+        return true;
     }
 }

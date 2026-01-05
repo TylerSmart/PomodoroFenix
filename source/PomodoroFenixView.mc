@@ -12,25 +12,25 @@ class PomodoroFenixView extends WatchUi.View {
         View.initialize();
     }
 
-    // Load your resources here
     function onLayout(dc as Dc) as Void {
         setLayout(Rez.Layouts.MainLayout(dc));
     }
 
-    // Called when this View is brought to the foreground. Restore
-    // the state of this View and prepare it to be shown. This includes
-    // loading resources into memory.
     function onShow() as Void {
     }
 
-    // Update the view
     function onUpdate(dc as Dc) as Void {
-        // Clear screen
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
         var app = Application.getApp();
         var timer = app.pomodoroTimer;
+        
+        if (timer.config == null) {
+             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+             dc.drawText(dc.getWidth()/2, dc.getHeight()/2, Graphics.FONT_MEDIUM, "No Timer Config", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+             return;
+        }
 
         var width = dc.getWidth();
         var height = dc.getHeight();
@@ -40,12 +40,24 @@ class PomodoroFenixView extends WatchUi.View {
         // Draw Progress Arc
         var radius = (width < height ? width : height) / 2 - 5;
         var penWidth = 10;
-        var totalDuration = timer.workDuration;
-        if (timer.currentPhase == :shortBreak) {
-            totalDuration = timer.shortBreakDuration;
-        } else if (timer.currentPhase == :longBreak) {
-            totalDuration = timer.longBreakDuration;
+        var totalDuration = 1;
+        
+        if (timer.config.type == TimerConfig.TYPE_STANDARD) {
+            if (timer.currentPhase == :focus) {
+                totalDuration = timer.config.focusDuration;
+            } else if (timer.currentPhase == :shortBreak) {
+                totalDuration = timer.config.shortBreakDuration;
+            } else if (timer.currentPhase == :longBreak) {
+                totalDuration = timer.config.longBreakDuration;
+            }
+        } else {
+            // Custom
+            if (timer.currentSectionIndex < timer.config.customSections.size()) {
+                 totalDuration = timer.config.customSections[timer.currentSectionIndex]["duration"];
+            }
         }
+        
+        if (totalDuration == 0) { totalDuration = 1; }
         
         var progress = 0;
         if (totalDuration > 0) {
@@ -58,20 +70,16 @@ class PomodoroFenixView extends WatchUi.View {
         dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, 90); // Full circle
 
         // Draw progress arc
-        var phaseColor = (timer.currentPhase == :work) ? Graphics.COLOR_GREEN : Graphics.COLOR_BLUE;
+        var phaseColor = (timer.currentPhase == :focus) ? Graphics.COLOR_GREEN : Graphics.COLOR_BLUE;
         dc.setColor(phaseColor, Graphics.COLOR_TRANSPARENT);
         
         if (progress > 0) {
             var angle = 360 * progress;
-            // Note: drawArc angles are in degrees. 90 is 12 o'clock. 0 is 3 o'clock.
-            // Clockwise: 90 -> 0 -> 270 -> 180.
-            // So 90 - angle.
-            
             dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, 90, 90 - angle);
         }
 
         // Draw Phase
-        var phaseText = "WORK";
+        var phaseText = "FOCUS";
         if (timer.currentPhase == :shortBreak) {
             phaseText = "SHORT BREAK";
         } else if (timer.currentPhase == :longBreak) {
@@ -82,7 +90,7 @@ class PomodoroFenixView extends WatchUi.View {
         dc.drawText(centerX, centerY - 60, Graphics.FONT_MEDIUM, phaseText, Graphics.TEXT_JUSTIFY_CENTER);
 
         // Draw Current Time if enabled
-        if (timer.showTime) {
+        if (timer.config.showTime) {
             var clockTime = System.getClockTime();
             var is24Hour = System.getDeviceSettings().is24Hour;
             var timeString = "";
@@ -121,11 +129,15 @@ class PomodoroFenixView extends WatchUi.View {
         }
         
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        // Use a smaller font to fit HH:MM:SS
         dc.drawText(centerX, centerY, Graphics.FONT_NUMBER_MEDIUM, timeStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Draw Cycles
-        var cyclesStr = (timer.completedCycles + 1) + "/" + timer.cycles;
+        var cyclesStr = "";
+        if (timer.config.type == TimerConfig.TYPE_STANDARD) {
+            cyclesStr = (timer.completedCycles + 1) + "/" + timer.config.cycles;
+        } else {
+            cyclesStr = (timer.currentSectionIndex + 1) + "/" + timer.config.customSections.size();
+        }
         dc.drawText(centerX, centerY + 60, Graphics.FONT_SMALL, cyclesStr, Graphics.TEXT_JUSTIFY_CENTER);
         
         // Draw Status (Paused?)
@@ -135,9 +147,6 @@ class PomodoroFenixView extends WatchUi.View {
         }
     }
 
-    // Called when this View is removed from the screen. Save the
-    // state of this View here. This includes freeing resources from
-    // memory.
     function onHide() as Void {
     }
 
